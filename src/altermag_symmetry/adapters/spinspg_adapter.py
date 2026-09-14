@@ -21,6 +21,7 @@ def analyze_spin_space(
     except ImportError:
         return SpinSpaceGroup(
             status="unavailable",
+            operation_backend="spinspg",
             detail="Install altermag-symmetry[spin] to enable spin-space symmetry.",
         )
 
@@ -35,10 +36,17 @@ def analyze_spin_space(
             mag_symprec=mag_symprec,
         )
     except Exception as exc:  # backend errors must survive in machine output
-        return SpinSpaceGroup(status="failed", detail=f"spinspg: {exc}")
+        return SpinSpaceGroup(
+            status="failed", operation_backend="spinspg", detail=f"spinspg: {exc}"
+        )
 
     operations = [
         SpinSpaceOperation(r.tolist(), t.tolist(), s.tolist())
         for r, t, s in zip(rotations, translations, spin_rotations, strict=True)
     ]
-    return SpinSpaceGroup(status="ok", spin_only_group=str(spin_only), operations=operations)
+    return SpinSpaceGroup(
+        status="ok",
+        spin_only_group=str(spin_only),
+        operations=operations,
+        operation_backend="spinspg",
+    )

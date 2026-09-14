@@ -3,9 +3,10 @@
 Use `analyze_material(structure_path, magnetic_config, options=None)`. The path must point
 to POSCAR, CONTCAR, or an ordinary CIF. `magnetic_config` accepts `moments`, `soc`, and
 `neel_vector`; moment keys are zero-based input atom indices. Options currently accept
-`symprec`, `mag_symprec`, and `compare_amcheck`.
+`symprec`, `mag_symprec`, `compare_amcheck`, `identify_ossg`,
+`fsg_eigenvalue_tol`, and `fsg_matrix_tol`.
 
-The return value is a dictionary with schema version `0.1.0` and these top-level fields:
+The return value is a dictionary with schema version `0.2.0` and these top-level fields:
 
 ```text
 structure, crystal_space_group, magnetic_configuration,
@@ -19,7 +20,11 @@ Invalid paths, formats, indices, vector shapes, non-finite values, or tolerances
 warning. Noncollinearity, non-compensation, backend disagreement, and unresolved magnetic
 symmetry are also explicit warnings.
 
+Within `spin_space_group`, `index`, `international_symbol`, and `group_components` come
+from FindSpinGroup; `operations` come from spinspg. Preserve the reported setting and
+tolerance context when interpreting either source.
+
 Agents may safely summarize group identifiers, mappings, tolerance sensitivity, raw
 constraints, and the exact `reasoning` entries. They should preserve “candidate” wording,
-must not infer a wave label, and must not turn an unavailable backend into a negative
-scientific result.
+must not turn a symmetry permission into a calculated magnitude, and must not turn an
+unavailable backend into a negative scientific result.

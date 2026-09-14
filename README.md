@@ -1,7 +1,7 @@
 # altermag-symmetry
 
 Research-grade symmetry analysis for collinear antiferromagnets and altermagnetic
-candidates. The current 0.1 milestone reads POSCAR, CONTCAR, and ordinary CIF files,
+candidates. The current 0.2 milestone reads POSCAR, CONTCAR, and ordinary CIF files,
 combines them with explicit Cartesian magnetic moments, and produces both a readable
 report and versioned JSON.
 
@@ -40,10 +40,12 @@ python -m venv .venv
 .venv/bin/pip install -e '.[all,dev]'
 ```
 
-Core dependencies are NumPy, spglib, and pymatgen. `spinspg` and `amcheck` are isolated
-behind adapters and available through `spin`, `amcheck`, and `all` extras. The project is
-Apache-2.0 licensed. Dependency licenses remain the terms of their respective projects;
-the package does not vendor those dependencies.
+Core dependencies are NumPy, spglib, and pymatgen. FindSpinGroup identifies the standard
+oriented spin-space group (OSSG), while spinspg supplies explicit `[S || {R | t}]`
+operations. These and amcheck are isolated behind adapters and available through the
+`findspingroup`, `spin`, `amcheck`, and `all` extras. The project is Apache-2.0 licensed.
+Dependency licenses remain the terms of their respective projects; the package does not
+vendor those dependencies.
 
 ## Quick start
 
@@ -65,6 +67,10 @@ altermag magnetic examples/POSCAR --config examples/magnetic_config.json
 altermag spin-group examples/POSCAR --config examples/magnetic_config.json
 altermag operations examples/POSCAR
 ```
+
+`spin-group` and `analyze` use FindSpinGroup by default. Pass `--no-findspingroup` for
+an operations-only run. The FindSpinGroup numerical controls are exposed as
+`--fsg-eigenvalue-tol` and `--fsg-matrix-tol`; their values are recorded in JSON.
 
 The tolerance scan reports every requested result and whether the group changes. It
 never silently selects a larger tolerance.
@@ -91,24 +97,27 @@ JSON-serializable dictionary. Its contract is documented in
 ## Interpretation of results
 
 The JSON separates input-derived structure data, raw backend symmetry results, explicit
-site mappings, mathematical momentum constraints, and the physical interpretation.
+site mappings, mathematical momentum constraints, and the physical interpretation. The
+`spin_space_group` object records the FindSpinGroup OSSG `index`, symbol, spin point
+group, group components, magnetic phase, property constraints, tolerances, and backend
+warnings. Explicit operation matrices retain `operation_backend: spinspg`.
 For an opposite-spin exchange, it reports
 `E_up(k) = E_down(R_k k)` and `Delta(k) = -Delta(R_k k)`, with `R_k = R^-T` in
 fractional reciprocal coordinates. Tolerances and package versions are recorded.
 
 ## Limitations
 
-Version 0.1 accepts vector moments but its classifier is collinear-only. It does not yet
-support magnetic CIF, partial occupancies, SOC representation theory, little groups,
-corepresentations, band degeneracies, or a derived d/g/i-wave label. A candidate result
-does not establish observable splitting; electronic bands and the relevant symmetry
-representations must still be checked. Nonsymmorphic labels are descriptive properties
-of a chosen operation representative, not a group-wide symmorphicity proof.
+Version 0.2 accepts vector moments but its local classifier is collinear-only. It does
+not yet support magnetic CIF, partial occupancies, SOC representation theory, little
+groups, corepresentations, or band degeneracies. FindSpinGroup property fields are
+symmetry permissions and polynomial classifications, not calculated response magnitudes.
+A candidate result does not establish observable splitting; electronic bands and the
+relevant symmetry representations must still be checked.
 
 ## Roadmap
 
-1. Phase 1: spglib, spinspg, conservative classification, CLI, and JSON (current).
-2. Phase 2: stronger amcheck comparison, FindSpinGroup, magnetic CIF, symbolic labels.
+1. Phase 1: spglib, spinspg, conservative classification, CLI, and JSON.
+2. Phase 2: FindSpinGroup OSSG identification and amcheck comparison (current).
 3. Phase 3: IRSSG, little spin groups, corepresentations, enforced degeneracies.
 4. Phase 4: VASP PROCAR/vasprun.xml and band comparisons.
 5. Phase 5: Wannier90, spin textures, and momentum-space splitting maps.

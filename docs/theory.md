@@ -15,6 +15,12 @@ all three components. For every operation the analysis computes the site permuta
 checks species identity and periodic distance, and records whether an up site maps to a
 down site. A matching `S` can then be tested against the ordered-moment direction.
 
+FindSpinGroup independently standardizes this operation set and identifies its oriented
+spin-space group (OSSG) index and symbol. The reported OSSG describes the nonrelativistic
+spin-space symmetry. Its associated BNS magnetic group describes the SOC-compatible
+case in which spin and real-space transformations are locked. Every identifier remains
+paired with the backend's numerical tolerances and setting information.
+
 For `x' = R x + t`, invariance of `k.x` gives the action on fractional reciprocal
 coordinates `k' = R^-T k`. When an operation exchanges opposite-spin sectors, the
 reported constraint is

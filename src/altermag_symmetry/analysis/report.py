@@ -23,8 +23,18 @@ def render(result: AnalysisResult) -> str:
             if magnetic
             else "Magnetic space group: unresolved"
         ),
-        f"Spin-space group: {result.spin_space_group.status} "
-        f"({len(result.spin_space_group.operations)} operations)",
+        (
+            f"Oriented spin-space group: {result.spin_space_group.index}"
+            if result.spin_space_group.index
+            else "Oriented spin-space group: unidentified"
+        ),
+        (
+            f"OSSG symbol: {result.spin_space_group.international_symbol}"
+            if result.spin_space_group.international_symbol
+            else f"Spin-space backend status: {result.spin_space_group.status}"
+        ),
+        f"Spin-space operations: {len(result.spin_space_group.operations)} "
+        f"({result.spin_space_group.operation_backend or 'unavailable'})",
         f"Magnetic sites: {len(result.magnetic_configuration.up)} up, "
         f"{len(result.magnetic_configuration.down)} down, "
         f"{len(result.magnetic_configuration.nonmagnetic)} nonmagnetic",

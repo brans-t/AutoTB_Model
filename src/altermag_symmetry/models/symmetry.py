@@ -54,3 +54,15 @@ class SpinSpaceGroup:
     spin_only_group: str | None = None
     operations: list[SpinSpaceOperation] = field(default_factory=list)
     detail: str | None = None
+    identification_backend: str | None = None
+    operation_backend: str | None = None
+    index: str | None = None
+    international_symbol: str | None = None
+    acc_symbol: str | None = None
+    spin_point_group_hm: str | None = None
+    spin_point_group_schoenflies: str | None = None
+    magnetic_phase: str | None = None
+    properties: dict = field(default_factory=dict)
+    group_components: dict = field(default_factory=dict)
+    identification_tolerances: dict = field(default_factory=dict)
+    backend_warnings: list[str] = field(default_factory=list)

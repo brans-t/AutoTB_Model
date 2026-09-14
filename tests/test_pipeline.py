@@ -17,6 +17,8 @@ def test_complete_analysis_and_strict_json(simple_poscar):
     assert payload["crystal_space_group"]["number"] == 229
     assert payload["magnetic_space_group"]["uni_number"] > 0
     assert payload["spin_space_group"]["status"] == "ok"
+    assert payload["spin_space_group"]["identification_backend"] == "findspingroup"
+    assert payload["spin_space_group"]["index"]
     assert payload["opposite_spin_pairs"] == [{"source": 0, "target": 1, "species": "Fe"}]
     assert any(item["spin_actions"] for item in payload["connecting_operations"])
     assert any(
@@ -28,6 +30,10 @@ def test_complete_analysis_and_strict_json(simple_poscar):
 
 
 def test_agent_api_is_plain_dictionary(simple_poscar):
-    payload = analyze_material(str(simple_poscar), {"moments": {"0": [0, 0, 1], "1": [0, 0, -1]}})
+    payload = analyze_material(
+        str(simple_poscar),
+        {"moments": {"0": [0, 0, 1], "1": [0, 0, -1]}},
+        {"identify_ossg": False},
+    )
     json.dumps(payload, allow_nan=False)
-    assert payload["schema_version"] == "0.1.0"
+    assert payload["schema_version"] == "0.2.0"

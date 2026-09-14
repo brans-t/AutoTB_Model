@@ -22,7 +22,7 @@ class AnalysisResult:
     warnings: list[str]
     tolerances: dict[str, float]
     provenance: dict[str, str]
-    schema_version: str = "0.1.0"
+    schema_version: str = "0.2.0"
 
     @property
     def crystal_symmetry(self) -> CrystalSpaceGroup:

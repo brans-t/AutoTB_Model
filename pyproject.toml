@@ -3,16 +3,21 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 [project]
 name = "altermag-symmetry"
-version = "0.1.0"
+version = "0.2.0"
 description = "Conservative symmetry analysis of collinear antiferromagnets and altermagnets"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 dependencies = ["numpy>=1.26", "spglib>=2.5,<3", "pymatgen>=2024.1"]
 [project.optional-dependencies]
-spin = ["spinspg>=0.3.2,<0.4"]
+spin = ["spinspg>=0.3.2,<0.4", "findspingroup>=0.15.17,<0.16"]
+findspingroup = ["findspingroup>=0.15.17,<0.16"]
 amcheck = ["amcheck>=1.0.2,<2"]
-all = ["spinspg>=0.3.2,<0.4", "amcheck>=1.0.2,<2"]
+all = [
+  "spinspg>=0.3.2,<0.4",
+  "findspingroup>=0.15.17,<0.16",
+  "amcheck>=1.0.2,<2",
+]
 dev = ["pytest>=8", "ruff>=0.9", "build"]
 [project.scripts]
 altermag = "altermag_symmetry.cli:main"

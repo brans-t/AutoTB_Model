@@ -7,8 +7,7 @@ import json
 from pathlib import Path
 
 from altermag_symmetry.adapters.spglib_adapter import crystal, magnetic
-from altermag_symmetry.adapters.spinspg_adapter import analyze_spin_space
-from altermag_symmetry.analysis.pipeline import analyze
+from altermag_symmetry.analysis.pipeline import analyze, analyze_spin_space_group
 from altermag_symmetry.analysis.report import render
 from altermag_symmetry.io.structure import read_structure
 from altermag_symmetry.magnetism.configuration import configure, load_config
@@ -39,6 +38,9 @@ def _parser() -> argparse.ArgumentParser:
         source.add_argument("--moments", type=_moments)
         item.add_argument("--symprec", type=float, default=1e-3)
         item.add_argument("--mag-symprec", type=float, default=1e-3)
+        item.add_argument("--fsg-eigenvalue-tol", type=float, default=2e-5)
+        item.add_argument("--fsg-matrix-tol", type=float, default=1e-2)
+        item.add_argument("--no-findspingroup", action="store_true")
         item.add_argument("--json", dest="json_path")
     symmetry = sub.add_parser("symmetry")
     symmetry.add_argument("structure")
@@ -91,7 +93,16 @@ def main(argv: list[str] | None = None) -> int:
             payload = magnetic(structure, moments.moments, args.symprec, args.mag_symprec).__dict__
             text = json.dumps(payload, default=lambda item: item.__dict__, indent=2)
         elif args.command == "spin-group":
-            payload = analyze_spin_space(structure, moments.moments, args.symprec, args.mag_symprec)
+            payload = analyze_spin_space_group(
+                structure,
+                moments.moments,
+                source_name=args.structure,
+                symprec=args.symprec,
+                mag_symprec=args.mag_symprec,
+                fsg_eigenvalue_tol=args.fsg_eigenvalue_tol,
+                fsg_matrix_tol=args.fsg_matrix_tol,
+                identify_ossg=not args.no_findspingroup,
+            )
             text = json.dumps(payload.__dict__, default=lambda item: item.__dict__, indent=2)
         else:
             result = analyze(
@@ -101,6 +112,9 @@ def main(argv: list[str] | None = None) -> int:
                 mag_symprec=args.mag_symprec,
                 soc=config.get("soc", False),
                 neel_vector=config.get("neel_vector"),
+                fsg_eigenvalue_tol=args.fsg_eigenvalue_tol,
+                fsg_matrix_tol=args.fsg_matrix_tol,
+                identify_ossg=not args.no_findspingroup,
             )
             text = result.to_json()
             print(render(result))
