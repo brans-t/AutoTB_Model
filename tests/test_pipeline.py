@@ -2,8 +2,8 @@ import json
 
 import numpy as np
 
-from altermag_symmetry import analyze, analyze_material
-from altermag_symmetry.analysis.momentum import reciprocal_transform
+from materials_symmetry import analyze, analyze_material
+from materials_symmetry.analysis.momentum import reciprocal_transform
 
 
 def test_reciprocal_action_is_inverse_transpose():
@@ -36,4 +36,14 @@ def test_agent_api_is_plain_dictionary(simple_poscar):
         {"identify_ossg": False},
     )
     json.dumps(payload, allow_nan=False)
-    assert payload["schema_version"] == "0.2.0"
+    assert payload["schema_version"] == "0.3.0"
+
+
+def test_nonmagnetic_analysis_skips_magnetic_layers(simple_poscar):
+    result = analyze(simple_poscar)
+    payload = json.loads(result.to_json())
+    assert payload["crystal_space_group"]["number"] == 229
+    assert payload["magnetic_configuration"] is None
+    assert payload["magnetic_space_group"] is None
+    assert payload["spin_space_group"] is None
+    assert payload["altermagnetic_classification"] is None

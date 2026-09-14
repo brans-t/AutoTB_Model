@@ -3,8 +3,8 @@
 import numpy as np
 from pymatgen.core import Lattice
 
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import SpatialOperation
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import SpatialOperation
 
 
 def classify_operation(rotation: list, lattice: list, translation: list | None = None) -> dict:

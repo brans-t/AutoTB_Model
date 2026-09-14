@@ -4,14 +4,14 @@ from pathlib import Path
 
 from pymatgen.core import Structure as PmgStructure
 
-from altermag_symmetry.models.structure import Structure
+from materials_symmetry.models.structure import Structure
 
 
 def read_structure(path: str | Path) -> Structure:
     """Read POSCAR, CONTCAR or ordinary CIF; moments are supplied separately."""
     path = Path(path)
     if path.suffix.lower() == ".mcif":
-        raise ValueError("Magnetic CIF is not supported in version 0.1")
+        raise ValueError("Magnetic CIF is not supported yet")
     if path.suffix.lower() == ".cif":
         from pymatgen.io.cif import CifParser
 

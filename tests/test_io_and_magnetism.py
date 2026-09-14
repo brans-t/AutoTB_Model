@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from altermag_symmetry.io.structure import read_structure
-from altermag_symmetry.magnetism.configuration import configure
+from materials_symmetry.io.structure import read_structure
+from materials_symmetry.magnetism.configuration import configure
 
 
 def test_poscar_preserves_site_order(simple_poscar):

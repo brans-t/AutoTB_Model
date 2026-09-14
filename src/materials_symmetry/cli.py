@@ -6,13 +6,13 @@ import argparse
 import json
 from pathlib import Path
 
-from altermag_symmetry.adapters.spglib_adapter import crystal, magnetic
-from altermag_symmetry.analysis.pipeline import analyze, analyze_spin_space_group
-from altermag_symmetry.analysis.report import render
-from altermag_symmetry.io.structure import read_structure
-from altermag_symmetry.magnetism.configuration import configure, load_config
-from altermag_symmetry.symmetry.crystal import scan_symprec
-from altermag_symmetry.symmetry.operations import classify_operation
+from materials_symmetry.adapters.spglib_adapter import crystal, magnetic
+from materials_symmetry.analysis.pipeline import analyze, analyze_spin_space_group
+from materials_symmetry.analysis.report import render
+from materials_symmetry.io.structure import read_structure
+from materials_symmetry.magnetism.configuration import configure, load_config
+from materials_symmetry.symmetry.crystal import scan_symprec
+from materials_symmetry.symmetry.operations import classify_operation
 
 
 def _moments(text: str) -> list[list[float]]:
@@ -28,12 +28,12 @@ def _moments(text: str) -> list[list[float]]:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="altermag")
+    parser = argparse.ArgumentParser(prog="matsym")
     sub = parser.add_subparsers(dest="command", required=True)
     for command in ("analyze", "magnetic", "spin-group"):
         item = sub.add_parser(command)
         item.add_argument("structure")
-        source = item.add_mutually_exclusive_group(required=True)
+        source = item.add_mutually_exclusive_group(required=command != "analyze")
         source.add_argument("--config")
         source.add_argument("--moments", type=_moments)
         item.add_argument("--symprec", type=float, default=1e-3)
@@ -53,7 +53,11 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _config(args: argparse.Namespace) -> dict:
-    return load_config(args.config) if args.config else {"moments": args.moments}
+    if args.config:
+        return load_config(args.config)
+    if args.moments is not None:
+        return {"moments": args.moments}
+    return {}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -82,6 +86,24 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         config = _config(args)
+        if args.command == "analyze":
+            result = analyze(
+                args.structure,
+                config.get("moments"),
+                symprec=args.symprec,
+                mag_symprec=args.mag_symprec,
+                soc=config.get("soc", False),
+                neel_vector=config.get("neel_vector"),
+                fsg_eigenvalue_tol=args.fsg_eigenvalue_tol,
+                fsg_matrix_tol=args.fsg_matrix_tol,
+                identify_ossg=not args.no_findspingroup,
+            )
+            text = result.to_json()
+            print(render(result))
+            if args.json_path:
+                Path(args.json_path).write_text(text + "\n")
+            return 0
+
         moments = configure(
             len(structure.species),
             config.get("moments", {}),
@@ -104,23 +126,9 @@ def main(argv: list[str] | None = None) -> int:
                 identify_ossg=not args.no_findspingroup,
             )
             text = json.dumps(payload.__dict__, default=lambda item: item.__dict__, indent=2)
-        else:
-            result = analyze(
-                args.structure,
-                config.get("moments", {}),
-                symprec=args.symprec,
-                mag_symprec=args.mag_symprec,
-                soc=config.get("soc", False),
-                neel_vector=config.get("neel_vector"),
-                fsg_eigenvalue_tol=args.fsg_eigenvalue_tol,
-                fsg_matrix_tol=args.fsg_matrix_tol,
-                identify_ossg=not args.no_findspingroup,
-            )
-            text = result.to_json()
-            print(render(result))
         if args.json_path:
             Path(args.json_path).write_text(text + "\n")
-        elif args.command != "analyze":
+        else:
             print(text)
         return 0
     except (OSError, ValueError) as exc:

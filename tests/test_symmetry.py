@@ -1,10 +1,10 @@
 import numpy as np
 
-from altermag_symmetry.io.structure import read_structure
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import SpatialOperation
-from altermag_symmetry.symmetry.crystal import scan_symprec
-from altermag_symmetry.symmetry.operations import atom_mapping, classify_operation
+from materials_symmetry.io.structure import read_structure
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import SpatialOperation
+from materials_symmetry.symmetry.crystal import scan_symprec
+from materials_symmetry.symmetry.operations import atom_mapping, classify_operation
 
 
 def test_tolerance_scan_returns_each_requested_value(simple_poscar):

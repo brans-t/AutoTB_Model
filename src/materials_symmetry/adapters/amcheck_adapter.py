@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from altermag_symmetry.models.magnetic import MagneticConfiguration
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import CrystalSpaceGroup
+from materials_symmetry.models.magnetic import MagneticConfiguration
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import CrystalSpaceGroup
 
 
 def validate(

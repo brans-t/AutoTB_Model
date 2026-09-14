@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from altermag_symmetry.adapters.spglib_adapter import cell
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import SpinSpaceGroup, SpinSpaceOperation
+from materials_symmetry.adapters.spglib_adapter import cell
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import SpinSpaceGroup, SpinSpaceOperation
 
 
 def analyze_spin_space(
@@ -22,7 +22,7 @@ def analyze_spin_space(
         return SpinSpaceGroup(
             status="unavailable",
             operation_backend="spinspg",
-            detail="Install altermag-symmetry[spin] to enable spin-space symmetry.",
+            detail="Install materials-symmetry[spin] to enable spin-space symmetry.",
         )
 
     lattice, positions, numbers = cell(structure)

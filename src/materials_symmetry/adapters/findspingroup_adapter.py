@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 
-from altermag_symmetry.models.structure import Structure
+from materials_symmetry.models.structure import Structure
 
 
 def identify_spin_space_group(
@@ -23,7 +23,7 @@ def identify_spin_space_group(
     except ImportError:
         return {
             "status": "unavailable",
-            "detail": "Install altermag-symmetry[findspingroup] for OSSG identification.",
+            "detail": "Install materials-symmetry[findspingroup] for OSSG identification.",
         }
 
     try:

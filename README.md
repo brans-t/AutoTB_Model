@@ -1,17 +1,17 @@
-# altermag-symmetry
+# materials-symmetry
 
-Research-grade symmetry analysis for collinear antiferromagnets and altermagnetic
-candidates. The current 0.2 milestone reads POSCAR, CONTCAR, and ordinary CIF files,
-combines them with explicit Cartesian magnetic moments, and produces both a readable
-report and versioned JSON.
+Research-grade crystal, magnetic, and spin-space symmetry analysis for materials. The
+current 0.3 milestone reads POSCAR, CONTCAR, and ordinary CIF files and produces both a
+readable report and versioned JSON. Magnetic moments are optional; supplying them adds
+magnetic-space, spin-space, sublattice, and magnetic-phase analyses.
 
 ## What problem does this solve?
 
-A crystallographic space-group label alone cannot decide whether opposite-spin
-sublattices permit nonrelativistic momentum-dependent spin splitting. This package keeps
-ordinary space-group symmetry, magnetic space-group symmetry, and spin-space symmetry
-as separate result objects, maps sites explicitly, and reports the assumptions behind a
-conservative candidate classification.
+Materials may be nonmagnetic, conventionally magnetic, antiferromagnetic, altermagnetic,
+or noncollinear. This package provides a common workflow while keeping ordinary space
+groups, magnetic space groups, and spin-space groups as separate result objects. Magnetic
+analyses add explicit site mappings, symmetry-derived constraints, and conservative
+physical interpretations.
 
 ## Space group vs magnetic space group vs spin space group
 
@@ -53,19 +53,20 @@ Atom indices in configuration files are always zero-based and refer to the unmod
 input order.
 
 ```bash
-altermag analyze examples/POSCAR --config examples/magnetic_config.json
-altermag analyze examples/POSCAR --config examples/magnetic_config.json --json result.json
-altermag analyze examples/POSCAR --moments '0,0,1;0,0,-1'
+matsym analyze examples/POSCAR
+matsym analyze examples/POSCAR --config examples/magnetic_config.json
+matsym analyze examples/POSCAR --config examples/magnetic_config.json --json result.json
+matsym analyze examples/POSCAR --moments '0,0,1;0,0,-1'
 ```
 
 ## CLI examples
 
 ```bash
-altermag symmetry examples/POSCAR --scan-symprec
-altermag symmetry examples/POSCAR --symprec 1e-3 5e-3 1e-2 2e-2
-altermag magnetic examples/POSCAR --config examples/magnetic_config.json
-altermag spin-group examples/POSCAR --config examples/magnetic_config.json
-altermag operations examples/POSCAR
+matsym symmetry examples/POSCAR --scan-symprec
+matsym symmetry examples/POSCAR --symprec 1e-3 5e-3 1e-2 2e-2
+matsym magnetic examples/POSCAR --config examples/magnetic_config.json
+matsym spin-group examples/POSCAR --config examples/magnetic_config.json
+matsym operations examples/POSCAR
 ```
 
 `spin-group` and `analyze` use FindSpinGroup by default. Pass `--no-findspingroup` for
@@ -78,8 +79,12 @@ never silently selects a larger tolerance.
 ## Python API
 
 ```python
-from altermag_symmetry import analyze
+from materials_symmetry import analyze
 
+# Crystal symmetry only
+crystal_result = analyze("POSCAR")
+
+# Crystal, magnetic, and spin-space symmetry
 result = analyze(
     "POSCAR",
     magnetic_moments={0: [0, 0, 1], 1: [0, 0, -1]},
@@ -107,7 +112,8 @@ fractional reciprocal coordinates. Tolerances and package versions are recorded.
 
 ## Limitations
 
-Version 0.2 accepts vector moments but its local classifier is collinear-only. It does
+Version 0.3 accepts nonmagnetic structures and arbitrary vector moments, but its local
+altermagnetic classifier is collinear-only. It does
 not yet support magnetic CIF, partial occupancies, SOC representation theory, little
 groups, corepresentations, or band degeneracies. FindSpinGroup property fields are
 symmetry permissions and polynomial classifications, not calculated response magnitudes.

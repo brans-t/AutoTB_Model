@@ -1,6 +1,6 @@
 """Conservative, explicit candidate classification."""
 
-from altermag_symmetry.models.magnetic import (
+from materials_symmetry.models.magnetic import (
     AltermagneticClassification,
     MagneticConfiguration,
 )

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from altermag_symmetry.models.magnetic import MagneticConfiguration
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import SpatialOperation
-from altermag_symmetry.symmetry.operations import atom_mapping, classify_operation
+from materials_symmetry.models.magnetic import MagneticConfiguration
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import SpatialOperation
+from materials_symmetry.symmetry.operations import atom_mapping, classify_operation
 
 
 def find_connections(

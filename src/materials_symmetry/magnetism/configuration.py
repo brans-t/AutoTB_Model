@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from altermag_symmetry.models.magnetic import MagneticConfiguration
+from materials_symmetry.models.magnetic import MagneticConfiguration
 
 
 def load_config(path: str | Path) -> dict:

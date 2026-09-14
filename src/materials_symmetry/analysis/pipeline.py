@@ -7,18 +7,18 @@ from pathlib import Path
 
 import numpy as np
 
-from altermag_symmetry.adapters.amcheck_adapter import validate as validate_amcheck
-from altermag_symmetry.adapters.findspingroup_adapter import identify_spin_space_group
-from altermag_symmetry.adapters.spglib_adapter import crystal, magnetic
-from altermag_symmetry.adapters.spinspg_adapter import analyze_spin_space
-from altermag_symmetry.analysis.momentum import constraint
-from altermag_symmetry.io.structure import read_structure
-from altermag_symmetry.magnetism.altermagnet import classify
-from altermag_symmetry.magnetism.configuration import configure
-from altermag_symmetry.magnetism.sublattices import find_connections
-from altermag_symmetry.models.result import AnalysisResult
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import SpinSpaceGroup
+from materials_symmetry.adapters.amcheck_adapter import validate as validate_amcheck
+from materials_symmetry.adapters.findspingroup_adapter import identify_spin_space_group
+from materials_symmetry.adapters.spglib_adapter import crystal, magnetic
+from materials_symmetry.adapters.spinspg_adapter import analyze_spin_space
+from materials_symmetry.analysis.momentum import constraint
+from materials_symmetry.io.structure import read_structure
+from materials_symmetry.magnetism.altermagnet import classify
+from materials_symmetry.magnetism.configuration import configure
+from materials_symmetry.magnetism.sublattices import find_connections
+from materials_symmetry.models.result import AnalysisResult
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import SpinSpaceGroup
 
 
 def _version(package: str) -> str:
@@ -30,6 +30,8 @@ def _version(package: str) -> str:
 
 def _attach_spin_actions(result: AnalysisResult) -> None:
     """Attach matching S matrices without changing the spatial classification."""
+    if result.spin_space_group is None or result.magnetic_configuration is None:
+        return
     if not result.spin_space_group.operations:
         return
     for item in result.connecting_operations:
@@ -104,7 +106,7 @@ def analyze_spin_space_group(
 
 def analyze_structure(
     structure: Structure,
-    magnetic_moments: dict | list,
+    magnetic_moments: dict | list | None = None,
     *,
     symprec: float = 1e-3,
     mag_symprec: float = 1e-3,
@@ -116,11 +118,34 @@ def analyze_structure(
     fsg_matrix_tol: float = 1e-2,
     identify_ossg: bool = True,
 ) -> AnalysisResult:
-    """Analyze an already parsed structure while preserving its atom indexing."""
+    """Analyze crystal symmetry and, when moments are supplied, magnetic symmetry."""
+    crystal_group = crystal(structure, symprec)
+    provenance = {
+        "materials_symmetry": _version("materials-symmetry"),
+        "spglib": _version("spglib"),
+        "spinspg": _version("spinspg"),
+        "findspingroup": _version("findspingroup"),
+        "amcheck": _version("amcheck"),
+    }
+    if magnetic_moments is None:
+        return AnalysisResult(
+            structure,
+            crystal_group,
+            None,
+            None,
+            None,
+            [],
+            [],
+            None,
+            [],
+            [],
+            {"symprec_angstrom": symprec},
+            provenance,
+        )
+
     configuration = configure(
         len(structure.species), magnetic_moments, mag_symprec, soc, neel_vector
     )
-    crystal_group = crystal(structure, symprec)
     warnings: list[str] = []
     try:
         magnetic_group = magnetic(structure, configuration.moments, symprec, mag_symprec)
@@ -155,7 +180,7 @@ def analyze_structure(
         constraint(item["real_rotation"], item["classification"]["label"]) for item in connections
     ]
     if not configuration.is_collinear:
-        warnings.append("The version 0.1 classifier supports collinear moments only.")
+        warnings.append("The local altermagnetic classifier supports collinear moments only.")
     if not configuration.is_compensated:
         warnings.append("The supplied magnetic configuration is not compensated.")
     if independent.get("status") == "ok" and (
@@ -187,13 +212,7 @@ def analyze_structure(
             "findspingroup_eigenvalue_tol": fsg_eigenvalue_tol,
             "findspingroup_matrix_tol": fsg_matrix_tol,
         },
-        {
-            "altermag_symmetry": _version("altermag-symmetry"),
-            "spglib": _version("spglib"),
-            "spinspg": _version("spinspg"),
-            "findspingroup": _version("findspingroup"),
-            "amcheck": _version("amcheck"),
-        },
+        provenance,
     )
     _attach_spin_actions(result)
     return result
@@ -201,7 +220,7 @@ def analyze_structure(
 
 def analyze(
     structure_path: str | Path,
-    magnetic_moments: dict | list,
+    magnetic_moments: dict | list | None = None,
     *,
     symprec: float = 1e-3,
     mag_symprec: float = 1e-3,
@@ -230,7 +249,7 @@ def analyze(
 
 def analyze_material(
     structure_path: str,
-    magnetic_config: dict,
+    magnetic_config: dict | None = None,
     options: dict | None = None,
 ) -> dict:
     """Stable agent-facing API returning only JSON-serializable values."""
@@ -246,9 +265,10 @@ def analyze_material(
     unknown = set(options) - allowed
     if unknown:
         raise ValueError(f"Unknown analysis options: {sorted(unknown)}")
+    magnetic_config = magnetic_config or {}
     result = analyze(
         structure_path,
-        magnetic_config.get("moments", {}),
+        magnetic_config.get("moments"),
         soc=magnetic_config.get("soc", False),
         neel_vector=magnetic_config.get("neel_vector"),
         **options,

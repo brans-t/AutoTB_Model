@@ -3,8 +3,8 @@
 import numpy as np
 import spglib
 
-from altermag_symmetry.models.structure import Structure
-from altermag_symmetry.models.symmetry import (
+from materials_symmetry.models.structure import Structure
+from materials_symmetry.models.symmetry import (
     CrystalSpaceGroup,
     MagneticOperation,
     MagneticSpaceGroup,

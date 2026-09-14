@@ -1,7 +1,7 @@
 """Ordinary symmetry and independent tolerance scans."""
 
-from altermag_symmetry.adapters.spglib_adapter import crystal
-from altermag_symmetry.models.structure import Structure
+from materials_symmetry.adapters.spglib_adapter import crystal
+from materials_symmetry.models.structure import Structure
 
 
 def scan_symprec(structure: Structure, tolerances: list[float]) -> dict:
