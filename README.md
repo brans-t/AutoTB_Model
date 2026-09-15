@@ -36,9 +36,16 @@ complete proof of a particular wave form nor a band-structure calculation.
 Python 3.11 or newer is required.
 
 ```bash
-python -m venv .venv
-.venv/bin/pip install -e '.[all,dev]'
+git clone git@github.com:brans-t/AutoTB_Model.git
+cd AutoTB_Model/materials-symmetry
+bash install.sh
+source .venv/bin/activate
 ```
+
+Run `bash install.sh` from a fresh clone to create `.venv` and install the full analysis
+and development dependencies. The script can be rerun to update an existing environment.
+If `python3` is not the desired Python 3.11+ executable, run
+`PYTHON=/path/to/python bash install.sh`. The environment stays local and is ignored by Git.
 
 Core dependencies are NumPy, spglib, and pymatgen. FindSpinGroup identifies the standard
 oriented spin-space group (OSSG), while spinspg supplies explicit `[S || {R | t}]`
@@ -56,8 +63,27 @@ input order.
 matsym analyze examples/POSCAR
 matsym analyze examples/POSCAR --config examples/magnetic_config.json
 matsym analyze examples/POSCAR --config examples/magnetic_config.json --json result.json
-matsym analyze examples/POSCAR --moments '0,0,1;0,0,-1'
 ```
+
+The current example is MgNb₂(PO₅)₂. The magnetic config assigns opposite moments to Nb
+atoms 14 and 15 in the POSCAR input order.
+
+## Markdown symmetry report
+
+```bash
+.venv/bin/python skills/poscar-symmetry-report/scripts/render_report.py examples/POSCAR --config examples/magnetic_config.json
+```
+
+This writes `examples/MgNb2(PO5)2.md` beside the POSCAR. Omit `--config` for a
+crystal-only report named `examples/MgNb2(PO5)2_crystal.md`. The material name comes from
+the POSCAR title when it is a formula; otherwise the script uses the reduced composition.
+Use `--output path.md` to choose another path. Tables center their cells, and operations
+and momentum relations use LaTeX math. The report highlights the operations involved in
+the preliminary altermagnetic classification.
+
+The reusable Codex skill is in [skills/poscar-symmetry-report](skills/poscar-symmetry-report/SKILL.md).
+Install it locally with `cp -R skills/poscar-symmetry-report ~/.codex/skills/`, then provide
+the agent a POSCAR path and, for magnetic analysis, the magnetic config path.
 
 ## CLI examples
 
@@ -82,12 +108,12 @@ never silently selects a larger tolerance.
 from materials_symmetry import analyze
 
 # Crystal symmetry only
-crystal_result = analyze("POSCAR")
+crystal_result = analyze("examples/POSCAR")
 
 # Crystal, magnetic, and spin-space symmetry
 result = analyze(
-    "POSCAR",
-    magnetic_moments={0: [0, 0, 1], 1: [0, 0, -1]},
+    "examples/POSCAR",
+    magnetic_moments={14: [0, 0, 1], 15: [0, 0, -1]},
     symprec=1e-2,
 )
 print(result.crystal_symmetry)
