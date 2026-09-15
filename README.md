@@ -6,6 +6,11 @@ AutoWannier is a research project exploring how to select, construct, and valida
 
 **Status: Concept / pre-alpha research project.** This README defines scientific scope and a proposed development path. All software capabilities described below are planned unless explicitly stated otherwise; no autonomous AI Wannierization system is claimed to exist yet.
 
+The repository also contains [materials-symmetry](materials-symmetry/README.md), a runnable
+package for ordinary, magnetic, and spin-space symmetry analysis. It has its own installation
+instructions, POSCAR examples, and Markdown report skill. The pre-alpha status above refers to
+AutoWannier.
+
 ## Motivation
 
 Turning a first-principles calculation into an effective tight-binding (TB) Hamiltonian requires substantial scientific judgment. A researcher must choose the target energy range and low-energy degrees of freedom, select Wannier projections and `num_wann`, and set outer disentanglement and frozen windows. They must decide whether ligand orbitals are necessary, check orbital character and symmetry, inspect spin–orbit coupling (SOC) splittings and band crossings, and diagnose failures before adjusting the setup.
